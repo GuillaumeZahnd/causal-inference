@@ -7,7 +7,7 @@
 
 ### Rubin causal model
 
-- $\mathrm{T} \in \{0, 1\}$: Treatment actually received by the subject.
+- $\mathrm{T} \in \lbrace 0, 1\rbrace$: Treatment actually received by the subject.
 - $\mathrm{Y}(0)$: Outcome if the treatment is not administered to the subject.
 - $\mathrm{Y}(1)$: Outcome if the treatment is administered to the subject.
 - Only one of these outcomes can be known, because the counterfactual outcome is never observed.
