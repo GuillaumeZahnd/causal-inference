@@ -3,11 +3,13 @@ import pandas as pd
 from econml.dml import CausalForestDML
 from xgboost import XGBRegressor
 
+from causal_parameters import CausalParameters
+
 
 def double_ml_econml(
     df: pd.DataFrame,
     feature_columns: list[str],
-    ) -> np.ndarray:
+    ) -> CausalParameters:
 
     X = df[feature_columns]
     W = df["treatment"]
@@ -30,10 +32,26 @@ def double_ml_econml(
     # Fit the double ML model on observational data [X, W, Y] (EconML expects Y and W as 1D arrays or column vectors)
     dml_estimator.fit(Y=Y.to_numpy(), T=W.to_numpy(), X=X)
 
+    # Confidence intervals for the quantities \tau(X, T0, T1) produced by the model (one pair per subject)
+    cate_lower, cate_upper = dml_estimator.effect_interval(X, alpha=0.05)
+
+    # Confidence interval for the quantity E[\tau(X, T0, T1)] produced by the model (one pair in total)
+    ate = float(dml_estimator.ate(X))
+    ate_lower, ate_upper = dml_estimator.ate_interval(X)
+
     # Predict counterfactual treatment effects (CATE) across sample X
-    predicted_cate_raw = dml_estimator.effect(X)
+    cate_raw = dml_estimator.effect(X)
 
     # Flatten output array to 1D float64 array for evaluation
-    predicted_cate = np.asarray(predicted_cate_raw, dtype=np.float64).ravel()
+    cate = np.asarray(cate_raw, dtype=np.float64).ravel()
 
-    return predicted_cate
+    causal_parameters = CausalParameters(
+        cate=cate,
+        cate_lower=cate_lower,
+        cate_upper=cate_upper,
+        ate=ate,
+        ate_lower=ate_lower,
+        ate_upper=ate_upper
+        )
+
+    return causal_parameters

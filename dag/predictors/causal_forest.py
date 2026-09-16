@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 from econml.grf import CausalForest
 
+from causal_parameters import CausalParameters
+
 
 def causal_forest(
     df: pd.DataFrame,
     feature_columns: list[str],
-    ) -> np.ndarray:
+    ) -> CausalParameters:
 
     X = df[feature_columns]
     W = df["treatment"]
@@ -24,9 +26,11 @@ def causal_forest(
     cf_estimator.fit(X, W.to_numpy(), Y.to_numpy())
 
     # Predict counterfactual treatment effects (CATE) across sample X
-    predicted_cate_raw = cf_estimator.predict(X)
+    cate_raw = cf_estimator.predict(X)
 
     # Flatten output array to 1D float64 array for evaluation
-    predicted_cate = np.asarray(predicted_cate_raw, dtype=np.float64).ravel()
+    cate = np.asarray(cate_raw, dtype=np.float64).ravel()
 
-    return predicted_cate
+    causal_parameters = CausalParameters(cate=cate)
+
+    return causal_parameters

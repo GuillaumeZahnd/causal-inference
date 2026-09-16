@@ -12,7 +12,6 @@ from utils import print_metrics
 
 if __name__ == "__main__":
 
-
     csv_path = Path("datasets") / "dummy_observed_dataset.csv"
     npz_path = Path("datasets") / "dummy_ground_truth.npz"
 
@@ -34,5 +33,6 @@ if __name__ == "__main__":
     ]
 
     for name, method in METHODS:
-        predicted_cate = method(df, feature_columns)
-        print_metrics(name, predicted_cate, true_cate)
+        causal_parameters = method(df, feature_columns)
+        print_metrics(name, causal_parameters, true_cate)
+

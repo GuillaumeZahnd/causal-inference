@@ -7,10 +7,11 @@
 
 ### Rubin causal model
 
+- $\mathrm{T} \in {0, 1}$: Treatment actually received by the subject.
 - $\mathrm{Y}(0)$: Outcome if the treatment is not administered to the subject.
 - $\mathrm{Y}(1)$: Outcome if the treatment is administered to the subject.
 - Only one of these outcomes can be known, because the counterfactual outcome is never observed.
-- Individual treatment effect for the $i$-th subject: $\mathrm{Y}_i(1) - \mathrm{Y}_i(0)$
+- Individual treatment effect for the $i$-th subject: $\tau_i := \mathrm{Y}_i(1) - \mathrm{Y}_i(0)$
 - Average treatment effect (ATE): $\tau := \mathbb{E}\big[Y(1) - Y(0)\big] = \mathbb{E}\big[Y(1)\big] - \mathbb{E}\big[Y(0)\big]$
 
 ### Acronyms

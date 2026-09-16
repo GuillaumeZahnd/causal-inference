@@ -1,14 +1,13 @@
-import numpy as np
 import pandas as pd
 from xgboost import XGBRegressor
-from utils import print_metrics
 
+from causal_parameters import CausalParameters
 
 
 def xgboost_s_learner(
     df: pd.DataFrame,
     feature_columns: list[str],
-    ) -> np.ndarray:
+    ) -> CausalParameters:
     """
     XGBoost S-Learner (single model)
     """
@@ -28,15 +27,17 @@ def xgboost_s_learner(
     X_counter_1 = X.copy().assign(treatment=1)
     X_counter_0 = X.copy().assign(treatment=0)
 
-    predicted_cate = s_model.predict(X_counter_1) - s_model.predict(X_counter_0)
+    cate = s_model.predict(X_counter_1) - s_model.predict(X_counter_0)
 
-    return predicted_cate
+    causal_parameters = CausalParameters(cate=cate)
+
+    return causal_parameters
 
 
 def xgboost_t_learner(
     df: pd.DataFrame,
     feature_columns: list[str],
-    ) -> np.ndarray:
+    ) -> CausalParameters:
     """
     XGBoost T-Learner (dual model)
     """
@@ -56,6 +57,8 @@ def xgboost_t_learner(
     t_model_1.fit(X_1, Y_1)
 
     # Predict counterfactuals across the entire dataset X
-    predicted_cate = t_model_1.predict(X) - t_model_0.predict(X)
+    cate = t_model_1.predict(X) - t_model_0.predict(X)
 
-    return predicted_cate
+    causal_parameters = CausalParameters(cate=cate)
+
+    return causal_parameters

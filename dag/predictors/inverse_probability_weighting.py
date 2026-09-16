@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
+from causal_parameters import CausalParameters
+
 
 def inverse_probability_weighting(
     df: pd.DataFrame,
     feature_columns: list[str],
-    ) -> np.ndarray:
+    ) -> CausalParameters:
 
     X = df[feature_columns].values
     T = df["treatment"].values.astype(int)
@@ -30,7 +32,9 @@ def inverse_probability_weighting(
     ate_scalar = float(weighted_mean_treated - weighted_mean_control)
 
     # Expand ATE scalar to a 1D array matching true_cate length for evaluation
-    predicted_cate = np.full(df.shape[0], ate_scalar, dtype=np.float64)
+    cate = np.full(df.shape[0], ate_scalar, dtype=np.float64)
 
-    return predicted_cate
+    causal_parameters = CausalParameters(cate=cate)
+
+    return causal_parameters
 
