@@ -13,6 +13,7 @@
 - Only one of these outcomes can be known, because the counterfactual outcome is never observed.
 - Individual treatment effect for the $i$-th subject: $\tau_i := \mathrm{Y}_i(1) - \mathrm{Y}_i(0)$
 - Average treatment effect (ATE): $\tau := \mathbb{E}\big[Y(1) - Y(0)\big] = \mathbb{E}\big[Y(1)\big] - \mathbb{E}\big[Y(0)\big]$
+- Conditional average treatment effect, for subgroup $x$: $\textrm{CATE}(x) := \mathbb{E}\big[Y(1) - Y(0)\mid X=x\big]$
 
 ### Acronyms
 
