@@ -4,7 +4,6 @@
 
 *Source: [xkcd](https://xkcd.com/552/)*
 
-
 ### Rubin causal model
 
 - $\mathrm{T} \in \lbrace 0, 1\rbrace$: Treatment actually received by the subject.
@@ -26,5 +25,8 @@
 
 ### Bibliography
 
-- Judea Pearl and Dana Mackenzie (2018). The Book of Why: The New Science of Cause and Effect.
+- Judea Pearl and Dana Mackenzie (2018). **"The Book of Why: The New Science of Cause and Effect."**
 - I Bica, AM Alaa, C Lambert, and M van der Schaar (2021). [**"From Real-World Patient Data to Individualized Treatment Effects Using Machine Learning: Current and Future Methods to Address Underlying Challenges."**](https://pubmed.ncbi.nlm.nih.gov/32449163/) Clinical Pharmacology & Therapeutics.
+
+
+
