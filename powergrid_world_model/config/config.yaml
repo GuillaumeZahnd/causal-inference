@@ -1,0 +1,23 @@
+experiment_name: "world_model_experiments"
+run_name: "mlp_baseline"
+
+environment:
+  accelerator: "auto"
+  torch_matmul_precision: "high"
+  mlflow_tracking_uri: "sqlite:///mlflow.db"
+
+data:
+  train_seed: 0
+  train_days: 90
+  test_seed: 100
+  test_days: 30
+  steps_per_hour: 4
+  batch_size: 64
+
+model:
+  input_dim: 6
+  hidden_dim: 64
+  lr: 0.001
+
+training:
+  nb_epochs: 15
