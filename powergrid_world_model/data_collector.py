@@ -31,13 +31,13 @@ def collect_simulation_data(
         action_kw = agent.act(grid_state.to_dict())
 
         # Step the physical battery
-        delta_soc_kwh = battery.step(
+        delta_soc_kwh, delta_grid_kw = battery.step(
             action_kw=action_kw,
             duration_hours=duration_hours
         )
 
         # Net power flowing from us to the grid (positive: net import, negative: net export)
-        net_grid_kw = grid_state.demand_load - grid_state.solar_yield + action_kw
+        net_grid_kw = grid_state.demand_load - grid_state.solar_yield + delta_grid_kw
 
         # Financial cost (positive: we pay, negative: we get paid)
         grid_cost = net_grid_kw * grid_state.spot_price * duration_hours
@@ -61,8 +61,9 @@ def collect_simulation_data(
             "next_solar_yield": next_grid_state.solar_yield,
             "next_demand_load": next_grid_state.demand_load,
             "next_spot_price": next_grid_state.spot_price,
-            "action_kw": action_kw,  # Treatment (A_t)
-            "delta_soc_kwh": delta_soc_kwh,  # Transition outcome
+            "action_kw": action_kw,  # Intended action (A_t)
+            "delta_soc_kwh": delta_soc_kwh,  # Internal state change
+            "delta_grid_kw": delta_grid_kw,  # Executed grid action
             "reward": reward,  # Outcome (Y_t)
         })
 
