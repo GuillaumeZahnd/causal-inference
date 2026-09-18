@@ -13,7 +13,7 @@ def plot_daily_power_profile(df: pd.DataFrame) -> None:
 
     solar_color = "#E66101"
     demand_color = "#2B83BA"
-    price_color = "#4DAC26"
+    price_color = "#4D8C26"
 
     # Solar yield
     ax.plot(

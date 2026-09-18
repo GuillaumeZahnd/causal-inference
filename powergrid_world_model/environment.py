@@ -12,10 +12,14 @@ class GridState:
     step_idx: int
     hour: float
     battery_soc: float
-    solar_yield: float
-    demand_load: float
+    solar_yield: float  # How much power the solar panels are currently producing ("free supply")
+    demand_load: float  # How much power the site is currently consuming ("need")
     spot_price: float
 
+    """
+    demand_load - solar_yield: baseline gap to cover from the grid
+        positive means we are short (need to import), negative means we have surplus (could export)
+    """
 
     def to_dict(self) -> dict:
         return {
@@ -37,8 +41,7 @@ def generate_environment_step(
 
     Args:
         step_idx: Discrete time step index.
-        steps_per_hour: Granularity of time steps (1 = hourly, 4 = 15-min
-          intervals).
+        steps_per_hour: Granularity of time steps (1 = hourly, 4 = 15-min intervals).
         rng: Optional NumPy Random Generator for stochastic reproducibility.
 
     Returns:
@@ -52,9 +55,7 @@ def generate_environment_step(
 
     # Diurnal solar yield (peaks around noon)
     solar_base = max(0.0, np.sin(np.pi * (hour - 6) / 12))
-    solar_yield = float(
-        max(0.0, solar_base * 10.0 * rng.uniform(0.85, 1.0))
-        )
+    solar_yield = float(max(0.0, solar_base * 10.0 * rng.uniform(0.85, 1.0)))
 
     # Dual-peak demand load curve (morning @ 08:00, evening @ 19:00)
     morning_peak = np.exp(-(((hour - 8) / 1.5) ** 2))
@@ -62,8 +63,11 @@ def generate_environment_step(
     base_load = 1.5 + rng.normal(0, 0.1)
     demand_load = float(max(0.2, base_load + (3.5 * morning_peak) + (5.0 * evening_peak)))
 
-    # Spot price ($/kWh): Increases under high demand relative to solar
-    spot_price = float(max(0.01, 0.10 + 0.05 * demand_load - 0.02 * solar_yield))
+    # Spot price (€/kWh): rises with demand, falls with solar supply.
+    # Allowed to go mildly negative during high-solar/low-demand periods,
+    # mirroring real "duck curve" markets where excess renewable supply can push wholesale prices below zero.
+    spot_price = float(0.10 + 0.05 * demand_load - 0.02 * solar_yield)
+    spot_price = max(-0.05, spot_price)  # floor at a small negative value, not zero
 
     return {
         "hour": hour,
