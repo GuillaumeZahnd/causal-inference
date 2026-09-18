@@ -2,15 +2,15 @@ from agent import BaseAgent, RandomAgent
 import pandas as pd
 from battery import Battery
 from environment import Environment
+from solver_utils import compute_grid_reward
 
 
 def collect_simulation_data(
     agent: BaseAgent,
-    nb_days: int ,
+    nb_days: int,
     steps_per_hour: int,
     seed: int,
-    ) -> pd.DataFrame:
-
+) -> pd.DataFrame:
     """Steps through the simulation and logs (S_t, A_t, R_t, S_{t+1}) trajectories."""
 
     battery = Battery()
@@ -19,31 +19,30 @@ def collect_simulation_data(
     total_steps = nb_days * 24 * steps_per_hour
 
     records = []
-
     next_grid_state = env.get_state(0)
 
     for step_idx in range(total_steps):
 
-        # Fetch current state (GridState instance)
+        # Fetch current state
         grid_state = next_grid_state
 
-        # Agent selects action (positive sign: we import, negative sign: we export)
+        # Agent selects action
         action_kw = agent.act(grid_state.to_dict())
 
-        # Step the physical battery
+        # Step physical battery stateful object
         delta_soc_kwh, delta_grid_kw = battery.step(
             action_kw=action_kw,
-            duration_hours=duration_hours
+            duration_hours=duration_hours,
         )
 
-        # Net power flowing from us to the grid (positive: net import, negative: net export)
-        net_grid_kw = grid_state.demand_load - grid_state.solar_yield + delta_grid_kw
-
-        # Financial cost (positive: we pay, negative: we get paid)
-        grid_cost = net_grid_kw * grid_state.spot_price * duration_hours
-
-        # Convert the financial cost to rewards (ideally we "buy low, sell high")
-        reward = -grid_cost
+        # Compute rewards
+        reward = compute_grid_reward(
+            demand_load=float(grid_state.demand_load),
+            solar_yield=float(grid_state.solar_yield),
+            delta_grid_kw=delta_grid_kw,
+            spot_price=float(grid_state.spot_price),
+            duration_hours=duration_hours,
+        )
 
         # Peek at the next exogenous state
         next_grid_state = env.get_state(step_idx + 1)
@@ -77,7 +76,7 @@ if __name__ == "__main__":
         agent=agent,
         nb_days=60,
         steps_per_hour=4,
-        seed=0
+        seed=0,
     )
 
     print(f"Logged dataset shape: {df.shape}")
