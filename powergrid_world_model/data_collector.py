@@ -50,21 +50,21 @@ def collect_simulation_data(
 
         # Log trajectory record
         records.append({
-            "step_idx": step_idx,
-            "hour": grid_state.hour,
-            "battery_soc": grid_state.battery_soc,  # Current state (S_t)
-            "solar_yield": grid_state.solar_yield,
-            "demand_load": grid_state.demand_load,
-            "spot_price": grid_state.spot_price,
-            "next_hour": next_grid_state.hour,
-            "next_battery_soc": next_grid_state.battery_soc,  # Next state (S_{t+1})
-            "next_solar_yield": next_grid_state.solar_yield,
-            "next_demand_load": next_grid_state.demand_load,
-            "next_spot_price": next_grid_state.spot_price,
-            "action_kw": action_kw,  # Intended action (A_t)
-            "delta_soc_kwh": delta_soc_kwh,  # Internal state change
-            "delta_grid_kw": delta_grid_kw,  # Executed grid action
-            "reward": reward,  # Outcome (Y_t)
+            "step_idx": int(step_idx),
+            "hour": int(grid_state.hour),
+            "battery_soc": float(grid_state.battery_soc),  # Current state (S_t)
+            "solar_yield": float(grid_state.solar_yield),
+            "demand_load": float(grid_state.demand_load),
+            "spot_price": float(grid_state.spot_price),
+            "next_hour": int(next_grid_state.hour),
+            "next_battery_soc": float(next_grid_state.battery_soc),  # Next state (S_{t+1})
+            "next_solar_yield": float(next_grid_state.solar_yield),
+            "next_demand_load": float(next_grid_state.demand_load),
+            "next_spot_price": float(next_grid_state.spot_price),
+            "action_kw": float(action_kw),  # Intended action (A_t)
+            "delta_soc_kwh": float(delta_soc_kwh),  # Internal state change
+            "delta_grid_kw": float(delta_grid_kw),  # Executed grid action
+            "reward": float(reward),  # Outcome (Y_t)
         })
 
     return pd.DataFrame(records)
