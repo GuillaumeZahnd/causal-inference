@@ -1,2 +1,6 @@
 *.swp
-*/__pycache__/*
+*.swo
+mlflow.db
+__pycache__/
+figures/
+
