@@ -37,7 +37,7 @@ def generate_environment_step(
     steps_per_hour: int = 1,
     rng: np.random.Generator | None = None,
     ) -> dict[str, float]:
-    """Generates exogenous environment variables for a single step.
+    """Generate exogenous environment variables for a single step.
 
     Args:
         step_idx: Discrete time step index.
@@ -45,7 +45,7 @@ def generate_environment_step(
         rng: Optional NumPy Random Generator for stochastic reproducibility.
 
     Returns:
-        Dict containing hour, solar_yield, demand_load, and spot_price.
+        Dictionary containing hour, solar_yield, demand_load, and spot_price.
     """
     if rng is None:
         rng = np.random.default_rng(42)
@@ -85,18 +85,54 @@ class Environment:
         battery: Battery,
         seed: int = 42,
         steps_per_hour: int = 1,
-        ):
-
+        max_steps: int = 24,  # Define episode length (e.g., 24 hours)
+    ):
+        self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.steps_per_hour = steps_per_hour
         self.battery = battery
+        self.max_steps = max_steps
+        self.current_step = 0
+
+    def reset(self) -> GridState:
+        """Reset battery state and step counter for a new episode."""
+        self.current_step = 0
+        self.rng = np.random.default_rng(self.seed)
+        if hasattr(self.battery, "reset"):
+            self.battery.reset()
+        return self.get_state(step_idx=self.current_step)
+
+    def step(self, action_kw: float) -> tuple[GridState, float, bool, bool, dict]:
+        """Advance environment by one step given a battery control action."""
+        # Get state before action
+        state = self.get_state(step_idx=self.current_step)
+
+        # Calculate step duration in hours from steps_per_hour
+        duration_hours = 1.0 / self.steps_per_hour
+
+        # Apply action with duration_hours argument
+        actual_power, _ = self.battery.step(action_kw, duration_hours=duration_hours)
+
+        # Calculate step net energy cost / reward
+        net_grid_kw = state.demand_load - state.solar_yield + actual_power
+        cost = net_grid_kw * state.spot_price * duration_hours
+        reward = -cost  # Maximizing reward
+
+        # Advance step counter
+        self.current_step += 1
+        terminated = self.current_step >= self.max_steps
+        truncated = False
+
+        next_state = self.get_state(step_idx=self.current_step)
+
+        return next_state, reward, terminated, truncated, {}
 
     def get_state(self, step_idx: int) -> GridState:
         exogenous_state = generate_environment_step(
             step_idx=step_idx,
             steps_per_hour=self.steps_per_hour,
             rng=self.rng,
-            )
+        )
         return GridState(
             step_idx=step_idx,
             hour=exogenous_state["hour"],
@@ -104,7 +140,7 @@ class Environment:
             solar_yield=exogenous_state["solar_yield"],
             demand_load=exogenous_state["demand_load"],
             spot_price=exogenous_state["spot_price"],
-            )
+        )
 
 
 def generate_synthetic_day_data(

@@ -21,3 +21,16 @@ model:
 
 training:
   nb_epochs: 15
+
+agent:
+  type: "sb3" # Options: "random" or "sb3"
+
+simulation:
+  nb_days: 60
+  steps_per_hour: 4
+  seed: 0
+
+sb3:
+  total_timesteps: 20_000
+  model_name: "sac_battery_policy"
+  model_dir: "trained_agents"
