@@ -1,3 +1,7 @@
+defaults:
+- agent: sb3  # sb3, random
+- _self_
+
 experiment_name: "world_model_experiments"
 run_name: "mlp_baseline"
 
@@ -21,16 +25,11 @@ model:
 
 training:
   nb_epochs: 15
-
-agent:
-  type: "sb3" # Options: "random" or "sb3"
+  total_timesteps: 20_000
+  model_name: "sac_battery_policy"
+  model_dir: "trained_agents"
 
 simulation:
   nb_days: 60
   steps_per_hour: 4
   seed: 0
-
-sb3:
-  total_timesteps: 20_000
-  model_name: "sac_battery_policy"
-  model_dir: "trained_agents"

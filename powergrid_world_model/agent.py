@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from stable_baselines3 import SAC
+from pathlib import Path
+import hydra
 
 
 class BaseAgent(ABC):
@@ -36,7 +38,11 @@ class RandomAgent(BaseAgent):
 class SB3Agent(BaseAgent):
     """Agent driven by a trained Stable-Baselines3 model (e.g. SAC or PPO)."""
 
-    def __init__(self, model_path: str | None = None, model: SAC | None = None):
+    def __init__(
+        self,
+        model_path: str | None = None,
+        model: SAC | None = None
+    ):
         if model is not None:
             self.model = model
         elif model_path is not None:
@@ -61,3 +67,42 @@ class SB3Agent(BaseAgent):
         # deterministic=False retains entropy/exploration if collecting diverse WM data
         action, _ = self.model.predict(obs, deterministic=True)
         return float(action[0])
+
+    @classmethod
+    def load_or_train(
+        cls,
+        model_dir: str,
+        model_name: str,
+        total_timesteps: int = 20_000,
+        seed: int = 0,
+    ) -> "SB3Agent":
+        """Factory method to load an existing SB3 model or train one if missing."""
+        from battery import Battery
+        from environment import Environment
+        from gym_env_wrapper import GymEnvWrapper
+
+        dir_path = Path(model_dir)
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        try:
+            base_dir = Path(hydra.utils.get_original_cwd())
+        except (ValueError, RuntimeError):
+            base_dir = Path.cwd()
+
+        dir_path = base_dir / model_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        model_path = dir_path / model_name
+        zip_path = model_path.with_suffix(".zip")
+
+        if not zip_path.exists():
+            print(f"No existing model found at {zip_path}. Training new SB3 agent...")
+            gym_env = GymEnvWrapper(env_backend=Environment(battery=Battery(), seed=seed))
+
+            # Correctly reference variable 'model' across all calls
+            model = SAC("MlpPolicy", gym_env, verbose=1, learning_rate=3e-4, seed=seed)
+            model.learn(total_timesteps=total_timesteps)
+            model.save(str(model_path))
+            print(f"Model saved to {zip_path}")
+
+        return cls(model_path=str(model_path))

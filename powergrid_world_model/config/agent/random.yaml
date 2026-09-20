@@ -1,0 +1,4 @@
+_target_: agent.RandomAgent
+max_charge_kw: 20.0
+max_discharge_kw: 20.0
+seed: 0

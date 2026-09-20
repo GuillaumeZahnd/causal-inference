@@ -30,7 +30,7 @@ def run_pipeline(cfg: DictConfig) -> None:
     mlf_logger.log_hyperparams(params=params)
 
     datamodule = WorldModelDataModule(cfg=cfg)
-    
+
     model = NeuralWorldModel(cfg=cfg)
 
     trainer = lightning.Trainer(
@@ -41,7 +41,7 @@ def run_pipeline(cfg: DictConfig) -> None:
     )
 
     trainer.fit(model=model, datamodule=datamodule)
-    
+
     trainer.test(model=model, datamodule=datamodule)
 
 

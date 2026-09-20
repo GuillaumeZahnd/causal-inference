@@ -9,6 +9,7 @@ from battery import Battery
 from environment import Environment
 from gym_env_wrapper import GymEnvWrapper
 from solver_utils import compute_grid_reward
+from hydra.utils import instantiate
 
 
 def collect_simulation_data(
@@ -74,38 +75,9 @@ def collect_simulation_data(
     return pd.DataFrame(records)
 
 
-def get_agent(cfg: DictConfig) -> BaseAgent:
-    agent_type = cfg.agent.type.lower()
-
-    if agent_type == "random":
-        return RandomAgent(seed=cfg.simulation.seed)
-
-    elif agent_type == "sb3":
-        model_dir = Path(hydra.utils.get_original_cwd()) / cfg.sb3.model_dir
-        model_dir.mkdir(parents=True, exist_ok=True)
-
-        model_path = model_dir / cfg.sb3.model_name
-        zip_path = model_path.with_suffix(".zip")
-
-        if not zip_path.exists():
-            print(f"No existing model found at {zip_path}. Training new SB3 agent...")
-            gym_env = GymEnvWrapper(env_backend=Environment(battery=Battery()))
-            model = SAC("MlpPolicy", gym_env, verbose=1, learning_rate=3e-4)
-            model.learn(total_timesteps=cfg.sb3.total_timesteps)
-            model.save(str(model_path))
-            print(f"Model saved to {zip_path}")
-        else:
-            print(f"Loading existing SB3 agent model from {zip_path}")
-
-        return SB3Agent(model_path=str(model_path))
-
-    else:
-        raise ValueError(f"Unknown agent type: {agent_type}")
-
-
 @hydra.main(config_path="config", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
-    agent = get_agent(cfg)
+    agent: BaseAgent = instantiate(cfg.agent)
 
     df = collect_simulation_data(
         agent=agent,

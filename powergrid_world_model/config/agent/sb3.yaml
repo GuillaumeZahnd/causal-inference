@@ -1,0 +1,5 @@
+_target_: agent.SB3Agent.load_or_train
+model_dir: "${training.model_dir}"
+model_name: "${training.model_name}"
+total_timesteps: "${training.total_timesteps}"
+seed: "${data.train_seed}"

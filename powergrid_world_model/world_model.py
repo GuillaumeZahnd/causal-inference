@@ -3,8 +3,9 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
+from hydra.utils import instantiate
 
-from agent import RandomAgent
+from agent import BaseAgent
 from data_collector import collect_simulation_data
 
 
@@ -19,12 +20,8 @@ class TrajectoryDataset(Dataset):
             "action_kw",
         ]
         self.x = torch.tensor(df[feature_cols].values, dtype=torch.float32)
-        self.y_soc = torch.tensor(
-            df[["next_battery_soc"]].values, dtype=torch.float32
-        )
-        self.y_reward = torch.tensor(
-            df[["reward"]].values, dtype=torch.float32
-        )
+        self.y_soc = torch.tensor(df[["next_battery_soc"]].values, dtype=torch.float32)
+        self.y_reward = torch.tensor(df[["reward"]].values, dtype=torch.float32)
 
     def __len__(self) -> int:
         return len(self.x)
@@ -37,12 +34,16 @@ class WorldModelDataModule(L.LightningDataModule):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
+        self.agent: BaseAgent | None = None
 
     def setup(self, stage: str | None = None):
-        agent = RandomAgent(seed=0)
+
+        if self.agent is None:
+            self.agent = instantiate(self.cfg.agent)
+
         if stage in (None, "fit"):
             train_df = collect_simulation_data(
-                agent=agent,
+                agent=self.agent,
                 nb_days=self.cfg.data.train_days,
                 steps_per_hour=self.cfg.data.steps_per_hour,
                 seed=self.cfg.data.train_seed,
@@ -51,7 +52,7 @@ class WorldModelDataModule(L.LightningDataModule):
 
         if stage in (None, "test"):
             test_df = collect_simulation_data(
-                agent=agent,
+                agent=self.agent,
                 nb_days=self.cfg.data.test_days,
                 steps_per_hour=self.cfg.data.steps_per_hour,
                 seed=self.cfg.data.test_seed,
@@ -89,9 +90,7 @@ class NeuralWorldModel(L.LightningModule):
         self.reward_head = nn.Linear(cfg.model.hidden_dim, 1)
         self.loss_fn = nn.MSELoss()
 
-    def forward(
-        self, x: torch.Tensor
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         feat = self.backbone(x)
         return self.soc_head(feat), self.reward_head(feat)
 
