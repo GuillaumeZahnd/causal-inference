@@ -2,6 +2,8 @@
 
 A world model uses a data-driven, model-based approach to capture unknown system dynamics. Once trained, it provides a fast, risk-free offline environment for counterfactual evaluation, answering the core question: *"If I force this action under that state, what happens next?"*
 
+<img width="3934" height="2434" alt="simulation_agent_sb3" src="https://github.com/user-attachments/assets/97416d65-ea3c-4321-95dd-52a2d4163347" />
+
 ## Paradigm shift
 
 **Predictive model (policy focus):** Given a state, directly map to an action that maximizes expected reward.
