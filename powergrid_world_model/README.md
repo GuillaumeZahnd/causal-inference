@@ -30,7 +30,7 @@ $$M(s_t, a_t) \rightarrow (\hat{s}_{t+1}, \hat{r}_t)$$
 
 ```sh
 uv run plot_agent_trajectory.py
-``
+```
 
 2. Train the world model
 
@@ -38,4 +38,4 @@ Train (and evaluate) the world model, using an agent taking decisions from simul
 
 ```sh
 uv run train_world_model.py
-``
+```
