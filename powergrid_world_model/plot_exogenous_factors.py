@@ -85,6 +85,7 @@ def plot_exogenous_factors(
 
 
 if __name__ == "__main__":
+
     output_dir = Path("figures")
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / "exogenous_factors.png"

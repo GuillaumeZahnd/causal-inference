@@ -55,12 +55,12 @@ def generate_environment_step(
 
     # Diurnal solar yield (peaks around noon)
     solar_base = max(0.0, np.sin(np.pi * (hour - 6) / 12))
-    solar_yield = float(max(0.0, solar_base * 10.0 * rng.uniform(0.85, 1.0)))
+    solar_yield = float(max(0.0, solar_base * 30.0 * rng.uniform(0.75, 1.0)))
 
     # Dual-peak demand load curve (morning @ 08:00, evening @ 19:00)
     morning_peak = np.exp(-(((hour - 8) / 1.5) ** 2))
     evening_peak = np.exp(-(((hour - 19) / 2.0) ** 2))
-    base_load = 1.5 + rng.normal(0, 0.1)
+    base_load = 1.5 + rng.normal(0, 0.6)
     demand_load = float(max(0.2, base_load + (3.5 * morning_peak) + (5.0 * evening_peak)))
 
     # Spot price (€/kWh): rises with demand, falls with solar supply.
@@ -145,7 +145,7 @@ class Environment:
 
 def generate_synthetic_day_data(
     steps_per_hour: int = 4,
-    seed: int = 42
+    seed: int = 0
     ) -> pd.DataFrame:
 
     """Generate a complete multi-step dataset for analysis and plotting."""
