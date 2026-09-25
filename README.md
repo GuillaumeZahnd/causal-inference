@@ -12,15 +12,16 @@
 - Only one of these outcomes can be known, because the counterfactual outcome is never observed.
 - Individual treatment effect for the $i$-th subject: $\tau_i := \mathrm{Y}_i(1) - \mathrm{Y}_i(0)$
 - Average treatment effect (ATE): $\tau := \mathbb{E}\big[Y(1) - Y(0)\big] = \mathbb{E}\big[Y(1)\big] - \mathbb{E}\big[Y(0)\big]$
-- Conditional average treatment effect, for subgroup $x$: $\textrm{CATE}(x) := \mathbb{E}\big[Y(1) - Y(0)\mid X=x\big]$
+- Conditional average treatment effect, for subgroup $x$: $\tau(x) := \mathbb{E}\big[Y_i(1) - Y_i(0)\mid X_i=x\big]$
 
 ### Acronyms
 
 - ATE: Average Treatment Effect
 - CATE: Conditional Average Treatment Effect
 - DAG: Directed Acyclic Graph
-- DiD: Difference in Differences
+- DiD: Difference in Differences, $`\hat{\delta} := \left(\bar{Y}_{\mathrm{Treated},t_1} - \bar{Y}_{\mathrm{Treated},t_0}\right) - \left(\bar{Y}_{\mathrm{Control},t_1} - \bar{Y}_{\mathrm{Control},t_0}\right)`$
 - EHRs: Electronic Health Records
+- HTE: Heterogeneous Treatment Effect
 - RCTs: Randomized Controlled Trials
 
 ### Bibliography
