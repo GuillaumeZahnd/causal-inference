@@ -35,6 +35,10 @@ def plot_propensity_scores(
     treatment_column: str = "treatment",
     nb_bins: int = 50
 ) -> None:
+    """
+    Nuisance from model t: Propensity score
+    Probability of receiving treatment given covariates
+    """
 
     overlap_coefficient = compute_overlap_coefficient(
         propensity_scores=propensity_scores,
